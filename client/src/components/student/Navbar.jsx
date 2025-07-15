@@ -22,7 +22,7 @@ const Navbar = () => {
          { user && <>
           <button onClick={()=> {navigate("/educator")}}>
             {isEducator? "Educator Dashboard" : "Become Educator"}</button>
-          |   <Link path="/my-enrollments">My Enrollments</Link>
+            |  <Link path="/my-enrollments">My Enrollments</Link>
           </>}
         </div>
         {user ? <UserButton/> :
