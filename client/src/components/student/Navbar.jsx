@@ -2,11 +2,13 @@ import {assets} from '../../assets/assets'
 import { Link } from 'react-router-dom'
 import {useClerk, UserButton, useUser} from '@clerk/clerk-react'
 import { useContext } from 'react'
-import { AppContext } from '../../context/AppContext'
+import { AppContext } from "../../context/AppContext"
+import { useNavigate} from 'react-router-dom'
 
 
 const Navbar = () => {
-  const {navigate, isEducator} = useContext(AppContext);
+  const {isEducator} = useContext(AppContext);
+  const navigate = useNavigate();
   const isCourseListPage = location.pathname.includes('/course-list'); 
 
   const {openSignIn} = useClerk()
