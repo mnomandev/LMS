@@ -3,12 +3,10 @@ import { Link } from 'react-router-dom'
 import {useClerk, UserButton, useUser} from '@clerk/clerk-react'
 import { useContext } from 'react'
 import { AppContext } from "../../context/AppContext"
-import { useNavigate} from 'react-router-dom'
 
 
 const Navbar = () => {
-  const {isEducator} = useContext(AppContext);
-  const navigate = useNavigate();
+  const {isEducator, navigate} = useContext(AppContext);
   const isCourseListPage = location.pathname.includes('/course-list'); 
 
   const {openSignIn} = useClerk()
@@ -24,7 +22,7 @@ const Navbar = () => {
          { user && <>
           <button onClick={()=> {navigate("/educator")}}>
             {isEducator ? "Educator Dashboard" : "Become Educator"}</button>
-            |  <Link path="/my-enrollments">My Enrollments</Link>
+            |  <Link to={"/my-enrollments"}>My Enrollments</Link>
           </>}
         </div>
         {user ? <UserButton/> :
@@ -37,7 +35,7 @@ const Navbar = () => {
           { user && <>
            <button onClick={()=> {navigate("/educator")}}>
             {isEducator? "Educator Dashboard" : "Become Educator"}</button>
-          |   <Link path="/my-enrollments">My Enrollments</Link>
+          |   <Link  to={"/my-enrollments"}>My Enrollments</Link>
           </>}
        </div>
      {  user ? <UserButton/> : <button onClick={()=> openSignIn()}>
