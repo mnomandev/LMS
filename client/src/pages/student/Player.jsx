@@ -3,6 +3,9 @@ import { AppContext } from "../../context/AppContext";
 import { useParams } from "react-router-dom";
 import { assets } from "../../assets/assets";
 import humanizeDuration from "humanize-duration";
+import YouTube from "react-youtube";
+import Footer from "../../components/student/Footer";
+import Rating from "../../components/student/Rating";
 
 const Player = () => {
   const {enrolledCourses, calculateChapterTime} = useContext(AppContext);
@@ -13,7 +16,7 @@ const Player = () => {
 
   useEffect(() => {
     getCourseData();  
-  });
+  },[enrolledCourses]);
 
   const getCourseData = () => {
     enrolledCourses.map((course) => {
@@ -55,7 +58,7 @@ const Player = () => {
                              text-gray-600 border-t border-gray-300">
                              {chapter.chapterContent.map((lecture, i) => (
                                <li key={i} className="flex items-start gap-2 py-1">
-                                 <img src={ false ? assets.blue_tick_icon : assets.play_icon} alt="play icon" className="w-4 h-4 mt-1" />
+                                 <img src={false ? assets.blue_tick_icon : assets.play_icon} alt="play icon" className="w-4 h-4 mt-1" />
                                  <div className="flex items-center justify-between w-full
                                    text-gray-800 text-xs md:text-default">
                                    <p>{lecture.lectureTitle}</p>
@@ -76,13 +79,29 @@ const Player = () => {
                        </div>
                      ))}
                    </div>
+                   <div className="flex items-center gap-2 py-3 mt-10">
+                    <h1 className="text-xl font-bold">Rate this course:</h1>
+                    <Rating initialRating={0}/>
+                   </div>
      </div>
 
       {/* right column */}
-     <div>
-      
+     <div className="md:mt-10">
+      {playerData ? (
+        <div>
+          <YouTube videoId={playerData.lectureUrl.split("/").pop()} 
+                  iframeClassName="w-full aspect-video"/>
+                  <div className="flex items-center justify-between mt-1">
+                    <p>{playerData.chapter}.{playerData.lecture}.{playerData.lectureTitle}</p>
+                    <button className="text-blue-600">{false ? "complete" : "Mark Complete"}</button>
+                  </div>
+        </div>
+      ) :
+      <img src={courseData ? courseData.courseThumbnail : "" } alt="" />
+      }
      </div>
     </div>
+    <Footer/>
    </>
   )
 }

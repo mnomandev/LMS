@@ -4,6 +4,7 @@ import CoursesSection from '../../components/student/CoursesSection'
 import Hero from '../../components/student/Hero'
 import TestimonialsSection from '../../components/student/TestimonialsSection'
 import Footer from '../../components/student/Footer'
+import Navbar from '../../components/student/Navbar'
 
 const Home = () => {
   return (
