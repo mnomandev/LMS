@@ -13,6 +13,7 @@ import StudentsEnrolled from "./pages/educator/StudentsEnrolled"
 import StdNavbar from "./components/student/StdNavbar"
 import "quill/dist/quill.snow.css"
 
+
 const App = () => {
   const isEducator = useMatch("/educator/*");
   return (

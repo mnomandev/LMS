@@ -3,6 +3,7 @@ import EdNavbar from "../../components/educator/EdNavbar"
 import Sidebar from "../../components/educator/Sidebar"
 import Footer from "../../components/educator/Footer"
 
+
 const Educator = () => {
   return (
     <div className="text-default min-h-screen bg-white">
