@@ -50,6 +50,8 @@ export const clerkWebhooks = async (req, res) => {
         message: error.message,
     });
        console.error("Error processing webhook:", error);
+       console.error("Error processing webhook:", error);
+       // Optionally log the error details
        res.status(500).json({ error: "Internal Server Error" });
    }
 
