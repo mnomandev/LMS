@@ -5,7 +5,7 @@ import { useContext } from 'react'
 import { AppContext } from "../../context/AppContext"
 
 
-const Navbar = () => {
+const StdNavbar = () => {
   const {isEducator, navigate} = useContext(AppContext);
   const isCourseListPage = location.pathname.includes('/course-list'); 
 
@@ -46,4 +46,4 @@ const Navbar = () => {
   )
 }
 
-export default Navbar
+export default StdNavbar
