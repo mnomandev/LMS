@@ -13,7 +13,7 @@ await connectDB();
 //middleware
 app.use(cors());
 
-//Route
+//Routes
 app.get('/', (req, res) => res.send('API is running'));
 app.post('/clerk', express.json(), clerkWebhooks)
 
