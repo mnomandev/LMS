@@ -3,7 +3,7 @@ import User from "../models/User.js";
 
 export const clerkWebhooks = async (req, res) => {
   try {
-    const payload = req.body; // raw buffer
+    const payload = req.body.toString("utf8"); // convert Buffer → string
     const headers = req.headers;
 
     const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
@@ -15,6 +15,8 @@ export const clerkWebhooks = async (req, res) => {
     });
 
     const { data, type } = evt;
+
+    console.log("✅ Clerk event received:", type);
 
     switch (type) {
       case "user.created": {
@@ -41,6 +43,7 @@ export const clerkWebhooks = async (req, res) => {
         break;
       }
       default:
+        console.log("ℹ️ Unhandled event type:", type);
         break;
     }
 
