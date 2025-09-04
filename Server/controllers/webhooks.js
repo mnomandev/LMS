@@ -1,23 +1,23 @@
-import bodyParser from "body-parser";
 import { Webhook } from "svix";
 import User from "../models/User.js";
 
 export const clerkWebhooks = async (req, res) => {
   try {
-    // req.body is a Buffer because of bodyParser.raw
-    const payload = req.body.toString("utf8");
-    const headers = req.headers;
+    // ✅ Get raw Buffer as string
+    const payloadString = req.body.toString("utf8");
+
+    const headers = {
+      "svix-id": req.headers["svix-id"],
+      "svix-timestamp": req.headers["svix-timestamp"],
+      "svix-signature": req.headers["svix-signature"],
+    };
 
     const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
 
-    // ✅ Verify signature with raw body string
-    const evt = whook.verify(payload, {
-      "svix-id": headers["svix-id"],
-      "svix-timestamp": headers["svix-timestamp"],
-      "svix-signature": headers["svix-signature"],
-    });
+    // ✅ Verify signature against raw body string
+    const evt = whook.verify(payloadString, headers);
 
-    console.log("✅ Clerk event received:", evt.type);
+    console.log("✅ Clerk event verified:", evt.type);
 
     const { data, type } = evt;
 
@@ -25,26 +25,32 @@ export const clerkWebhooks = async (req, res) => {
       case "user.created": {
         const userData = {
           _id: data.id,
-          email: data.email_addresses[0].email_address,
-          name: `${data.first_name} ${data.last_name}`,
+          email: data.email_addresses?.[0]?.email_address || "no-email",
+          name: `${data.first_name || ""} ${data.last_name || ""}`.trim(),
           imageUrl: data.image_url,
         };
         await User.create(userData);
+        console.log("👤 User created in DB:", userData);
         break;
       }
       case "user.updated": {
         const userData = {
-          email: data.email_addresses[0].email_address,
-          name: `${data.first_name} ${data.last_name}`,
+          email: data.email_addresses?.[0]?.email_address || "no-email",
+          name: `${data.first_name || ""} ${data.last_name || ""}`.trim(),
           imageUrl: data.image_url,
         };
-        await User.findByIdAndUpdate(data.id, userData);
+        await User.findByIdAndUpdate(data.id, userData, { new: true });
+        console.log("👤 User updated in DB:", userData);
         break;
       }
       case "user.deleted": {
         await User.findByIdAndDelete(data.id);
+        console.log("❌ User deleted in DB:", data.id);
         break;
       }
+      default:
+        console.log("ℹ️ Unhandled Clerk event:", type);
+        break;
     }
 
     res.status(200).json({ success: true });
