@@ -3,21 +3,30 @@ import cors from "cors";
 import "dotenv/config";
 import connectDB from "./configs/mongodb.js";
 import { clerkWebhooks } from "./controllers/webhooks.js";
-import bodyParser from "body-parser";
 
 // connect DB once
 await connectDB();
+
 const app = express();
 
+// CORS middleware
 app.use(cors());
 
-// webhook route FIRST
-app.post("/clerk", express.raw({ type: "application/json" }), clerkWebhooks);
+// 🚨 Clerk webhook route comes BEFORE express.json()
+// This ensures raw body is available for signature verification
+app.post(
+  "/clerk",
+  express.raw({ type: "application/json" }),
+  clerkWebhooks
+);
 
-// normal routes AFTER
+// Normal body parser for all other routes
 app.use(express.json());
-app.get("/", (req, res) => res.send("API is running 🚀"));
 
+// test route
+app.get("/", (req, res) => {
+  res.send("API is running 🚀");
+});
 
 // export for Vercel
 export default app;
@@ -29,6 +38,3 @@ if (process.env.NODE_ENV !== "production") {
     console.log(`Server running locally on port ${PORT}`)
   );
 }
-
-
-
