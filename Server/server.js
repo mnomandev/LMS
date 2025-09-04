@@ -7,20 +7,16 @@ import bodyParser from "body-parser";
 
 // connect DB once
 await connectDB();
-
 const app = express();
 
-//middleware
-app.use(cors())
+app.use(cors());
 
-// 🚨 Clerk webhook MUST be before express.json()
-// test route
-app.get("/", (req, res) => {
-  res.send("API is running 🚀");
-});
+// webhook route FIRST
+app.post("/clerk", express.raw({ type: "application/json" }), clerkWebhooks);
 
-app.post("/clerk", bodyParser.raw({ type: "application/json" }), clerkWebhooks);
-
+// normal routes AFTER
+app.use(express.json());
+app.get("/", (req, res) => res.send("API is running 🚀"));
 
 
 // export for Vercel
