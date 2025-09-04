@@ -1,68 +1,32 @@
 import { Webhook } from "svix";
 import User from "../models/User.js";
-import fetch from "node-fetch"; // make sure you have node-fetch installed
 
 export const clerkWebhooks = async (req, res) => {
   try {
-    const payloadString = req.body.toString(); // raw body as string
+    const payloadString = req.body.toString(); // raw string
     const headers = req.headers;
 
     const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
     const evt = wh.verify(payloadString, headers);
 
-    const { id, ...attributes } = evt.data;
-    const eventType = evt.type;
+    const { data, type } = evt;
 
-    let email =
-      attributes.email_addresses?.[0]?.email_address ||
-      attributes.primary_email_address_id ||
-      null;
-
-    // 🔄 If no email in webhook payload → fetch from Clerk API
-    if (!email) {
-      try {
-        const resp = await fetch(`https://api.clerk.com/v1/users/${id}`, {
-          headers: {
-            Authorization: `Bearer ${process.env.CLERK_API_KEY}`,
-          },
-        });
-
-        if (resp.ok) {
-          const clerkUser = await resp.json();
-          email = clerkUser.email_addresses?.[0]?.email_address || null;
-        }
-      } catch (fetchErr) {
-        console.error("⚠️ Failed to fetch user from Clerk API:", fetchErr.message);
-      }
-    }
-
-    if (eventType === "user.created") {
-      const user = new User({
-        _id: id,
-        email,
-        name: `${attributes.first_name || ""} ${attributes.last_name || ""}`.trim(),
-        imageUrl: attributes.image_url,
-      });
-      await user.save();
-      console.log("✅ User created:", user._id);
-    }
-
-    if (eventType === "user.updated") {
+    // Use upsert to avoid duplicates and ensure save
+    if (type === "user.created" || type === "user.updated") {
       await User.findByIdAndUpdate(
-        id,
+        data.id,
         {
-          email,
-          name: `${attributes.first_name || ""} ${attributes.last_name || ""}`.trim(),
-          imageUrl: attributes.image_url,
+          _id: data.id,
+          email: data.email_addresses?.[0]?.email_address || "", // ensure email exists
+          name: `${data.first_name || ""} ${data.last_name || ""}`.trim(),
+          imageUrl: data.image_url,
         },
-        { new: true }
+        { upsert: true, new: true, setDefaultsOnInsert: true }
       );
-      console.log("✏️ User updated:", id);
     }
 
-    if (eventType === "user.deleted") {
-      await User.findByIdAndDelete(id);
-      console.log("🗑️ User deleted:", id);
+    if (type === "user.deleted") {
+      await User.findByIdAndDelete(data.id);
     }
 
     res.status(200).json({ success: true, message: "Webhook received" });
