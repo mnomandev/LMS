@@ -25,6 +25,9 @@ export const clerkWebhooks = async (req, res) => {
           name: `${attributes.first_name || ""} ${attributes.last_name || ""}`.trim(),
           imageUrl: attributes.image_url,
         });
+        // save in mongodb
+        await User.save();
+        console.log("New user saved to DB:", id);
         break;
 
       case "user.updated":

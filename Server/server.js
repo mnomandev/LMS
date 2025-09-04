@@ -3,6 +3,7 @@ import cors from "cors";
 import "dotenv/config";
 import connectDB from "./configs/mongodb.js";
 import { clerkWebhooks } from "./controllers/webhooks.js";
+import bodyParser from "body-parser";
 
 // connect DB once
 await connectDB();
@@ -18,7 +19,7 @@ app.get("/", (req, res) => {
   res.send("API is running 🚀");
 });
 
-app.post("/clerk", express.raw({ type: "application/json" }), clerkWebhooks);
+app.post("/clerk", bodyParser.raw({ type: "application/json" }), clerkWebhooks);
 
 
 
