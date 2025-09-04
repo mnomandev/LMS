@@ -1,27 +1,25 @@
+import bodyParser from "body-parser";
 import { Webhook } from "svix";
 import User from "../models/User.js";
 
 export const clerkWebhooks = async (req, res) => {
   try {
-    if (!req.body) {
-      return res.status(400).json({ success: false, message: "Empty body" });
-    }
-
-    // req.body is a Buffer (because of bodyParser.raw)
-    const payload = req.body instanceof Buffer ? req.body.toString("utf8") : req.body;
+    // req.body is a Buffer because of bodyParser.raw
+    const payload = req.body.toString("utf8");
     const headers = req.headers;
 
     const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
 
+    // ✅ Verify signature with raw body string
     const evt = whook.verify(payload, {
       "svix-id": headers["svix-id"],
       "svix-timestamp": headers["svix-timestamp"],
       "svix-signature": headers["svix-signature"],
     });
 
-    const { data, type } = evt;
+    console.log("✅ Clerk event received:", evt.type);
 
-    console.log("✅ Clerk event received:", type);
+    const { data, type } = evt;
 
     switch (type) {
       case "user.created": {
@@ -47,9 +45,6 @@ export const clerkWebhooks = async (req, res) => {
         await User.findByIdAndDelete(data.id);
         break;
       }
-      default:
-        console.log("ℹ️ Unhandled event type:", type);
-        break;
     }
 
     res.status(200).json({ success: true });
