@@ -21,9 +21,8 @@ export const clerkWebhooks = async (req, res) => {
           name: `${data.first_name || ""} ${data.last_name || ""}`.trim(),
           imageUrl: data.image_url,
         },
-        { upsert: true, new: true, setDefaultsOnInsert: true }
-      );
-    }
+       await User.save()
+    )}
 
     if (type === "user.deleted") {
       await User.findByIdAndDelete(data.id);
