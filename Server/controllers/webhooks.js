@@ -3,7 +3,12 @@ import User from "../models/User.js";
 
 export const clerkWebhooks = async (req, res) => {
   try {
-    const payload = req.body.toString("utf8"); // convert Buffer → string
+    if (!req.body) {
+      return res.status(400).json({ success: false, message: "Empty body" });
+    }
+
+    // req.body is a Buffer (because of bodyParser.raw)
+    const payload = req.body instanceof Buffer ? req.body.toString("utf8") : req.body;
     const headers = req.headers;
 
     const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
