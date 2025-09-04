@@ -5,9 +5,10 @@ import connectDB  from './configs/mongodb.js';
 import { clerkWebhooks } from './controllers/webhooks.js';
 
 
-const app = express();
 
 await connectDB();
+
+const app = express();
 
 //middleware
 app.use(cors())
