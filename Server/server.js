@@ -6,34 +6,31 @@ import { clerkWebhooks } from "./controllers/webhooks.js";
 import morgan from "morgan";
 import bodyParser from "body-parser";
 
-// Connect MongoDB
+// connect DB once
 await connectDB();
 
 const app = express();
 
-// ✅ Webhook route FIRST (raw body)
-app.post(
-  "/clerk",
-  bodyParser.raw({ type: "application/json" }),
-  clerkWebhooks
-);
+// 🚨 Clerk webhook MUST be before express.json()
+app.post("/clerk", bodyParser.raw({ type: "application/json" }), clerkWebhooks);
 
-// Normal middlewares (only after webhooks)
+// other middlewares for normal routes
 app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
 
-// Routes
+// test route
 app.get("/", (req, res) => {
   res.send("API is running 🚀");
 });
 
-// Export for Vercel
+// export for Vercel
 export default app;
 
+// local dev only
 if (process.env.NODE_ENV !== "production") {
   const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => {
-    console.log(`Server running locally on port ${PORT}`);
-  });
+  app.listen(PORT, () =>
+    console.log(`Server running locally on port ${PORT}`)
+  );
 }
