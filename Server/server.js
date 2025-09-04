@@ -18,7 +18,7 @@ app.get("/", (req, res) => {
   res.send("API is running 🚀");
 });
 
-app.post('/clerk', express.json(), clerkWebhooks)
+app.post("/clerk", express.raw({ type: "application/json" }), clerkWebhooks);
 
 
 
@@ -27,7 +27,7 @@ export default app;
 
 // local dev only
 if (process.env.NODE_ENV !== "production") {
-  const PORT = process.env.PORT || 5000;
+  const PORT = process.env.PORT || 4000;
   app.listen(PORT, () =>
     console.log(`Server running locally on port ${PORT}`)
   );
