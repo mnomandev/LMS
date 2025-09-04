@@ -1,5 +1,6 @@
 import { Webhook } from "svix";
 import User from "../models/User.js";
+import fetch from "node-fetch"; // make sure you have node-fetch installed
 
 export const clerkWebhooks = async (req, res) => {
   try {
@@ -12,10 +13,33 @@ export const clerkWebhooks = async (req, res) => {
     const { id, ...attributes } = evt.data;
     const eventType = evt.type;
 
+    let email =
+      attributes.email_addresses?.[0]?.email_address ||
+      attributes.primary_email_address_id ||
+      null;
+
+    // 🔄 If no email in webhook payload → fetch from Clerk API
+    if (!email) {
+      try {
+        const resp = await fetch(`https://api.clerk.com/v1/users/${id}`, {
+          headers: {
+            Authorization: `Bearer ${process.env.CLERK_API_KEY}`,
+          },
+        });
+
+        if (resp.ok) {
+          const clerkUser = await resp.json();
+          email = clerkUser.email_addresses?.[0]?.email_address || null;
+        }
+      } catch (fetchErr) {
+        console.error("⚠️ Failed to fetch user from Clerk API:", fetchErr.message);
+      }
+    }
+
     if (eventType === "user.created") {
       const user = new User({
         _id: id,
-        email: attributes.email_addresses?.[0]?.email_address || null,
+        email,
         name: `${attributes.first_name || ""} ${attributes.last_name || ""}`.trim(),
         imageUrl: attributes.image_url,
       });
@@ -27,7 +51,7 @@ export const clerkWebhooks = async (req, res) => {
       await User.findByIdAndUpdate(
         id,
         {
-          email: attributes.email_addresses?.[0]?.email_address || null,
+          email,
           name: `${attributes.first_name || ""} ${attributes.last_name || ""}`.trim(),
           imageUrl: attributes.image_url,
         },
