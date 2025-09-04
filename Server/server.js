@@ -4,13 +4,14 @@ import "dotenv/config";
 import connectDB from "./configs/mongodb.js";
 import { clerkWebhooks } from "./controllers/webhooks.js";
 import morgan from "morgan";
+import bodyParser from "body-parser";
 
 // Connect MongoDB once (cold start)
 await connectDB();
 
 const app = express();
 
-// Middleware
+// Middleware for normal routes
 app.use(cors());
 app.use(express.json());
 app.use(morgan("dev")); // logs requests in console
@@ -20,7 +21,12 @@ app.get("/", (req, res) => {
   res.send("API is running 🚀");
 });
 
-app.post("/clerk", clerkWebhooks);
+// Clerk webhook route (⚠️ must use raw body, not express.json)
+app.post(
+  "/clerk",
+  bodyParser.raw({ type: "application/json" }),
+  clerkWebhooks
+);
 
 // ✅ Vercel serverless export
 export default app;
