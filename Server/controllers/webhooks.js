@@ -9,33 +9,44 @@ export const clerkWebhooks = async (req, res) => {
     const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
     const evt = wh.verify(payloadString, headers);
 
-     console.log("🔔 Incoming Clerk webhook...");
+    console.log("🔔 Incoming Clerk webhook...");
     console.log("Headers:", headers);
 
     const { data, type } = evt;
 
-    
     console.log("✅ Verified event:", type);
     console.log("📦 Event data:", data);
 
-    // Use upsert to avoid duplicates and ensure save
-    if (type === "user.created" || type === "user.updated") {
-      await User.findByIdAndUpdate(
+    // Handle user.created
+    if (type === "user.created") {
+      const newUser = new User({
+        _id: data.id,
+        email: data.email_addresses?.[0]?.email_address || "",
+        name: `${data.first_name || ""} ${data.last_name || ""}`.trim(),
+        imageUrl: data.image_url,
+      });
+      await newUser.save();
+      console.log("🆕 User created in DB:", newUser);
+    }
+
+    // Handle user.updated
+    if (type === "user.updated") {
+      const updatedUser = await User.findByIdAndUpdate(
         data.id,
         {
-          _id: data.id,
-          email: data.email_addresses?.[0]?.email_address || "", // ensure email exists
+          email: data.email_addresses?.[0]?.email_address || "",
           name: `${data.first_name || ""} ${data.last_name || ""}`.trim(),
           imageUrl: data.image_url,
         },
-        { upsert: true, new: true, setDefaultsOnInsert: true }
-    )
-    console.log("📝 User saved/updated in DB:", updatedUser);
-  }
+        { new: true }
+      );
+      console.log("🔄 User updated in DB:", updatedUser);
+    }
 
+    // Handle user.deleted
     if (type === "user.deleted") {
       await User.findByIdAndDelete(data.id);
-       console.log("🗑️ User deleted:", data.id);
+      console.log("🗑️ User deleted:", data.id);
     }
 
     res.status(200).json({ success: true, message: "Webhook received" });
