@@ -9,7 +9,14 @@ export const clerkWebhooks = async (req, res) => {
     const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
     const evt = wh.verify(payloadString, headers);
 
+     console.log("🔔 Incoming Clerk webhook...");
+    console.log("Headers:", headers);
+
     const { data, type } = evt;
+
+    
+    console.log("✅ Verified event:", type);
+    console.log("📦 Event data:", data);
 
     // Use upsert to avoid duplicates and ensure save
     if (type === "user.created" || type === "user.updated") {
@@ -21,11 +28,14 @@ export const clerkWebhooks = async (req, res) => {
           name: `${data.first_name || ""} ${data.last_name || ""}`.trim(),
           imageUrl: data.image_url,
         },
-       await User.save()
-    )}
+        { upsert: true, new: true, setDefaultsOnInsert: true }
+    )
+    console.log("📝 User saved/updated in DB:", updatedUser);
+  }
 
     if (type === "user.deleted") {
       await User.findByIdAndDelete(data.id);
+       console.log("🗑️ User deleted:", data.id);
     }
 
     res.status(200).json({ success: true, message: "Webhook received" });
