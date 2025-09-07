@@ -20,20 +20,25 @@ export const clerkWebhooks = async (req, res) => {
     // Handle user.created
 // Handle user.created
 if (type === "user.created") {
-  const email = data.email_addresses?.[0]?.email_address || null; // fallback to null
+  try {
+    const email =
+      data.email_addresses?.find(e => e.id === data.primary_email_address_id)
+        ?.email_address || null;
 
-  const newUser = new User({
-    _id: data.id,
-    email, // may be null
-    name: `${data.first_name || ""} ${data.last_name || ""}`.trim(),
-    imageUrl: data.image_url,
-  });
+    const newUser = new User({
+      _id: data.id,
+      email,
+      name: `${data.first_name || ""} ${data.last_name || ""}`.trim(),
+      imageUrl: data.image_url,
+    });
 
-  await newUser.save();
-  console.log("🆕 User created in DB:", newUser);
-
-  return res.status(200).json({ success: true, message: "User saved (email optional)" });
+    await newUser.save();
+    console.log("🆕 User created in DB:", newUser);
+  } catch (err) {
+    console.error("❌ Failed to save user in DB:", err.message, err.errors);
+  }
 }
+
 
 
     // Handle user.updated
