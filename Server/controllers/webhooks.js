@@ -18,16 +18,22 @@ export const clerkWebhooks = async (req, res) => {
     console.log("📦 Event data:", data);
 
     // Handle user.created
-    if (type === "user.created") {
-      const newUser = new User({
-        _id: data.id,
-        email: data.email_addresses?.[0]?.email_address || "",
-        name: `${data.first_name || ""} ${data.last_name || ""}`.trim(),
-        imageUrl: data.image_url,
-      });
-      await newUser.save();
-      console.log("🆕 User created in DB:", newUser);
-    }
+   if (type === "user.created") {
+  const email = data.email_addresses?.[0]?.email_address;
+  if (!email) {
+    console.warn("⚠️ No email provided for user:", data.id);
+    return res.status(200).json({ success: true, message: "No email, skipped" });
+  }
+
+  const newUser = new User({
+    _id: data.id,
+    email,
+    name: `${data.first_name || ""} ${data.last_name || ""}`.trim(),
+    imageUrl: data.image_url,
+  });
+  await newUser.save();
+  console.log("🆕 User created in DB:", newUser);
+}
 
     // Handle user.updated
     if (type === "user.updated") {
