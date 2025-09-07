@@ -18,22 +18,23 @@ export const clerkWebhooks = async (req, res) => {
     console.log("📦 Event data:", data);
 
     // Handle user.created
-   if (type === "user.created") {
-  const email = data.email_addresses?.[0]?.email_address;
-  if (!email) {
-    console.warn("⚠️ No email provided for user:", data.id);
-    return res.status(200).json({ success: true, message: "No email, skipped" });
-  }
+// Handle user.created
+if (type === "user.created") {
+  const email = data.email_addresses?.[0]?.email_address || null; // fallback to null
 
   const newUser = new User({
     _id: data.id,
-    email,
+    email, // may be null
     name: `${data.first_name || ""} ${data.last_name || ""}`.trim(),
     imageUrl: data.image_url,
   });
+
   await newUser.save();
   console.log("🆕 User created in DB:", newUser);
+
+  return res.status(200).json({ success: true, message: "User saved (email optional)" });
 }
+
 
     // Handle user.updated
     if (type === "user.updated") {
