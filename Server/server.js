@@ -14,11 +14,6 @@ app.use(cors());
 
 // 🚨 Clerk webhook route comes BEFORE express.json()
 // This ensures raw body is available for signature verification
-app.post(
-  "/clerk",
-  express.raw({ type: "application/json" }),
-  clerkWebhooks
-);
 
 // Normal body parser for all other routes
 app.use(express.json());
@@ -27,6 +22,7 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.send("API is running 🚀");
 });
+app.post('/clerk', express.json(), clerkWebhooks);
 
 // export for Vercel
 export default app;
