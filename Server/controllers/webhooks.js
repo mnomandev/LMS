@@ -20,7 +20,8 @@ export const clerkWebhooks = async (req, res)=>{
           imageUrl: data.image_url
         }
         await User.create(userData);
-        res.json({})
+        console.log("New user created:", userData);
+        res.json({success: true , message: "User created"});
         break;
       }
       case "user.updated":{
@@ -30,12 +31,14 @@ export const clerkWebhooks = async (req, res)=>{
           imageUrl: data.image_url
         }
         await User.findByIdAndUpdate(data.id, userData);
-        res.json({});
+        console.log("User updated:", userData);
+        res.json({success: true , message: "User updated"});
         break;
       }
       case "user.deleted":{
         await User.findByIdAndDelete(data.id);
-        res.json({});
+        console.log("User deleted:", data.id);
+        res.json({success: true , message: "User deleted"});
         break;
       }
       default:
