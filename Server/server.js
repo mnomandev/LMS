@@ -3,7 +3,7 @@ import cors from "cors";
 import "dotenv/config";
 import connectDB from "./configs/mongodb.js";
 import { clerkWebhooks } from "./controllers/webhooks.js";
-import usersRoute from "./routes/users.js";
+// import usersRoute from "./routes/users.js";
 
 // connect DB once
 await connectDB();
