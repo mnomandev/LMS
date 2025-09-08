@@ -1,52 +1,52 @@
-import  { Webhook } from "svix";
-import User from "../models/User.js";
+import express from "express";
+import mongoose from "mongoose";
+import User from "../models/User.js"; // adjust path
+import { Webhook } from "svix";
 
-export const clerkWebhooks = async (req, res)=>{
-  try{
-    const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
-    await whook.verify(JSON.stringify(req.body),{
-      "svix-id": req.headers["svix-id"],
-      "svix-timestamp": req.headers["svix-timestamp"],
-      "svix-signature": req.headers["svix-signature"]
-    })
-    const {data, type} = req.body;
+const router = express.Router();
 
-    switch(type){
-      case "user.created":{
-        const userData = {
-          _id : data.id,
-          email: data.email_addresses?.[0]?.email_address || null,
-          name: data.first_name + " " + data.last_name,
-          imageUrl: data.image_url
-        }
-        await User.create(userData);
-        console.log("New user created:", userData);
-        res.json({success: true , message: "User created"});
-        break;
-      }
-      case "user.updated":{
-        const userData = {
-           email: data.email_addresses?.[0]?.email_address,
-          name: data.first_name + " " + data.last_name,
-          imageUrl: data.image_url
-        }
-        await User.findByIdAndUpdate(data.id, userData);
-        console.log("User updated:", userData);
-        res.json({success: true , message: "User updated"});
-        break;
-      }
-      case "user.deleted":{
-        await User.findByIdAndDelete(data.id);
-        res.json({success: true , message: "User deleted"});
-        console.log("User deleted:", data.id);
-        break;
-      }
-      default:
-        break;
+router.post("/clerk", express.raw({ type: "application/json" }), async (req, res) => {
+  try {
+    const payload = req.body;
+    const headers = req.headers;
+
+    const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
+
+    let evt;
+    try {
+      evt = wh.verify(payload, headers);
+    } catch (err) {
+      console.error("❌ Webhook signature verification failed:", err.message);
+      return res.status(400).json({ success: false, message: "Invalid signature" });
     }
+
+    const { id, type, data } = evt;
+
+    console.log("✅ Clerk Webhook Received:", type, id);
+
+    if (type === "user.created") {
+      const email = data.email_addresses?.[0]?.email_address || null;
+      const name = `${data.first_name || ""} ${data.last_name || ""}`.trim();
+      const imageUrl = data.image_url;
+
+      await User.findOneAndUpdate(
+        { _id: data.id },
+        {
+          email,
+          name,
+          imageUrl,
+        },
+        { upsert: true, new: true, setDefaultsOnInsert: true }
+      );
+
+      console.log("🎉 User saved to DB:", data.id);
+    }
+
+    res.status(200).json({ success: true });
+  } catch (err) {
+    console.error("❌ Webhook handler error:", err.message);
+    res.status(500).json({ success: false, message: "Server error" });
   }
-  catch(error){
-    console.error("❌ Clerk webhook error:", error.message);
-    res.status(400).json({ success: false, message: error.message });
-  }
-};
+});
+
+export default router;
