@@ -50,7 +50,7 @@ const App = () => {
         />
 
  <Route path="/educator" element={<Educator/>}>
-         <Route path="/educator" element={<Dashboard/>}/>
+         <Route index element={<Dashboard/>}/>
          <Route path="add-course" element={<AddCourse/>}/>
          <Route path="my-courses" element={<MyCourses/>}/>
          <Route path="student-enrolled" element={<StudentsEnrolled/>}/>
