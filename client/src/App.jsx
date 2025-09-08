@@ -1,4 +1,5 @@
 import { Route, Routes, useMatch } from "react-router-dom"
+import { SignIn, SignUp } from '@clerk/clerk-react'
 import Home from "./pages/student/Home"
 import CourseList from "./pages/student/CoursesList"
 import CourseDetails from "./pages/student/CourseDetails"
@@ -29,6 +30,24 @@ const App = () => {
         <Route path="/my-enrollments"  element={<MyEnrollments/>}/>
         <Route path="/player/:courseId"  element={<Player/>}/>
         <Route path="/loading/:path"  element={<Loading/>}/>
+
+        {/* ADD THESE CLERK ROUTES */}
+        <Route 
+          path="/sign-in" 
+          element={
+            <div className="flex justify-center items-center min-h-screen">
+              <SignIn routing="path" path="/sign-in" />
+            </div>
+          } 
+        />
+        <Route 
+          path="/sign-up" 
+          element={
+            <div className="flex justify-center items-center min-h-screen">
+              <SignUp routing="path" path="/sign-up" />
+            </div>
+          } 
+        />
 
  <Route path="/educator" element={<Educator/>}>
          <Route path="/educator" element={<Dashboard/>}/>
