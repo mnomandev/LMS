@@ -1,9 +1,10 @@
 import express from "express";
 import cors from "cors";
-import "dotenv/config";
+import dotenv from "dotenv";
 import connectDB from "./configs/mongodb.js";
 import { clerkWebhooks } from "./controllers/webhooks.js";
 
+dotenv.config();
 // connect DB once
 await connectDB();
 
@@ -24,13 +25,9 @@ app.get("/", (req, res) => {
 });
 app.post('/clerk', express.json(), clerkWebhooks);
 
-// export for Vercel
-export default app;
+// other routes
+app.listen(5000, () => {
+  console.log("Server is running on port 5000");
+});
 
-// local dev only
-if (process.env.NODE_ENV !== "production") {
-  const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () =>
-    console.log()
-  );
-}
+export default app;

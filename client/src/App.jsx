@@ -31,24 +31,6 @@ const App = () => {
         <Route path="/player/:courseId"  element={<Player/>}/>
         <Route path="/loading/:path"  element={<Loading/>}/>
 
-        {/* ADD THESE CLERK ROUTES */}
-        <Route 
-          path="/sign-in" 
-          element={
-            <div className="flex justify-center items-center min-h-screen">
-              <SignIn routing="path" path="/sign-in" />
-            </div>
-          } 
-        />
-        <Route 
-          path="/sign-up" 
-          element={
-            <div className="flex justify-center items-center min-h-screen">
-              <SignUp routing="path" path="/sign-up" />
-            </div>
-          } 
-        />
-
  <Route path="/educator" element={<Educator/>}>
          <Route index element={<Dashboard/>}/>
          <Route path="add-course" element={<AddCourse/>}/>
