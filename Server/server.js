@@ -14,7 +14,11 @@ app.use(express.json());
 // connect DB once
 await connectDB();
 
-app.post("/clerk", clerkWebhooks);
+app.post(
+  "/clerk",
+  express.raw({ type: "application/json" }),
+  clerkWebhooks
+);
 
 
 
