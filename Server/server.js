@@ -8,15 +8,16 @@ import  clerkWebhooks  from "./controllers/webhooks.js";
 dotenv.config();
 
 const app = express();
+// Other APIs (JSON allowed)
+app.use(express.json());
 
 // connect DB once
 await connectDB();
 
-app.use("/clerk", clerkWebhooks);
+app.post("/clerk", clerkWebhooks);
 
 
-// Other APIs (JSON allowed)
-app.use(express.json());
+
 app.get("/", (req, res) => res.send("Backend is running 🚀"));
 
 // --- Start server ---
