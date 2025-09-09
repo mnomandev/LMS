@@ -2,13 +2,19 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
-import connectDB from "./configs/mongodb.js";
+// import connectDB from "./configs/mongodb.js";
 import { clerkWebhooks } from "./controllers/webhooks.js";
 
 dotenv.config();
 
 // Connect to database
-await connectDB();
+ await mongoose.connect(process.env.MONGODB_URI, {
+      dbName: "lms", // <-- sets your DB name explicitly
+ }).then(() => {
+      console.log("MongoDB connected");
+ }).catch((err) => {
+      console.error("MongoDB connection error:", err);
+ });
 
 const app = express();
 
