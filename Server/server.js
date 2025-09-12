@@ -40,7 +40,7 @@ app.post('/clerk', bodyParser.raw({ type: 'application/json' }), clerkWebhooks);
 app.use('/api/educator', express.json(), educatorRouter);
 app.use('/api/course', express.json(), courseRouter);
 app.use('/api/user', express.json(), userRouter);
-app.use('/stripe', express.raw({ type: 'application/json' }), stripeWebhooks);
+app.use('/stripe', bodyParser.raw({ type: 'application/json' }), stripeWebhooks);
 
 
 // Start the server /port
