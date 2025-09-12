@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import { clerkWebhooks } from "./controllers/webhooks.js";
 import mongoose from "mongoose";
+import educatorRouter from './routes/educatorRoutes.js';
+import { clerkMiddleware } from "@clerk/express";
 
 dotenv.config();
 
@@ -20,24 +22,16 @@ const app = express();
 
 // CORS middleware
 app.use(cors());
+app.use(clerkMiddleware());
 
-// 🚨 Clerk webhook route comes BEFORE express.json()
-// This ensures raw body is available for signature verification
-app.post(
-  '/clerk', 
-  bodyParser.raw({ type: 'application/json' }), 
-  clerkWebhooks
-);
-
-// Normal body parser for all other routes
-app.use(express.json());
-
-// Test route
 app.get("/", (req, res) => {
   res.send("API is running 🚀");
 });
+app.post('/clerk', bodyParser.raw({ type: 'application/json' }), clerkWebhooks);
+app.use('/api/educator', express.json(), educatorRouter);
 
-// Other routes would go here...
+// Normal body parser for all other routes
+app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
