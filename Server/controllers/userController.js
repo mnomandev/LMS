@@ -54,7 +54,7 @@ export const purchaseCourse = async(req, res) => {
         const newPurchase = await Purchase.create(purchaseData);
 
         //stripe payment initialization
-        const stripeInstance = new Stripe(process.env.STRIPE_SECRECT_KEY);
+        const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY);
         const currency = process.env.CURRENCY.toLowerCase();
 
         //creating lin items for stripe
