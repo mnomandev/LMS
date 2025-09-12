@@ -3,9 +3,10 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import { clerkWebhooks } from "./controllers/webhooks.js";
-import mongoose from "mongoose";
+import mongoose, { connect } from "mongoose";
 import educatorRouter from './routes/educatorRoutes.js';
 import { clerkMiddleware } from "@clerk/express";
+import connectCloudinary  from "./configs/cloudinary.js";
 
 
 dotenv.config();
@@ -17,6 +18,7 @@ dotenv.config();
  }).catch((err) => {
       console.error("MongoDB connection error:", err);
  });
+ await connectCloudinary();
 
 const app = express();
 
