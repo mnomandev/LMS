@@ -1,14 +1,14 @@
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import bodyParser from "body-parser";
+import dotenv from "dotenv";
 import { clerkWebhooks } from "./controllers/webhooks.js";
 import mongoose from "mongoose";
 import educatorRouter from './routes/educatorRoutes.js';
 import { clerkMiddleware } from "@clerk/express";
 
-dotenv.config();
 
+dotenv.config();
 // Connect to database
  await mongoose.connect(process.env.MONGODB_URI, {
       dbName: "lms", // <-- sets your DB name explicitly
