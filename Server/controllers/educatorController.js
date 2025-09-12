@@ -25,13 +25,13 @@ export const addCourse = async (req, res)=>{
   try{
      const {courseData} = req.body;
      const imageFile = req.file;
-     const { educatorId } = req.auth();
+     const { userId  } = req.auth();
 
      if(!imageFile){
       return res.json({success: false, message: 'Course thumbnail is required'});
      }
      const parsedCourseData = await JSON.parse(courseData);
-     parsedCourseData.educator = educatorId;
+     parsedCourseData.educator = userId;
 
      const newCourse =await Course.create(parsedCourseData)
 
