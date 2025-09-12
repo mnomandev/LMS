@@ -12,12 +12,6 @@ const StdNavbar = () => {
   const {openSignIn} = useClerk()
   const {user} = useUser()
 
-   console.log("🔍 Navbar - User state:", {
-    userExists: !!user,
-    userId: user?.id,
-    userEmail: user?.emailAddresses?.[0]?.emailAddress
-  });
-
   return (
     <div className={`flex items-center justify-between 
     px-4 sm:px-10 md:px-14 lg:px-36 border-b

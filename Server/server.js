@@ -7,6 +7,9 @@ import mongoose, { connect } from "mongoose";
 import educatorRouter from './routes/educatorRoutes.js';
 import { clerkMiddleware } from "@clerk/express";
 import connectCloudinary  from "./configs/cloudinary.js";
+import courseRouter from "./routes/courseRoutes.js";
+import userRouter from "./routes/userRoutes.js";
+import { stripeWebhooks } from "./controllers/webhooks.js";
 
 
 dotenv.config();
@@ -29,15 +32,18 @@ app.use(clerkMiddleware({
     secretKey: process.env.CLERK_SECRET_KEY,
   }));
 
+// Routes
 app.get("/", (req, res) => {
   res.send("API is running 🚀");
 });
 app.post('/clerk', bodyParser.raw({ type: 'application/json' }), clerkWebhooks);
 app.use('/api/educator', express.json(), educatorRouter);
+app.use('/api/course', express.json(), courseRouter);
+app.use('/api/user', express.json(), userRouter);
+app.use('/stripe', express.raw({ type: 'application/json' }), stripeWebhooks);
 
-// Normal body parser for all other routes
-app.use(express.json());
 
+// Start the server /port
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
